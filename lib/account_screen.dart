@@ -59,10 +59,10 @@ class _AccountScreenState extends State<AccountScreen> {
             return Center(
               child: Column(
                 children: [
-                  SizedBox(height: 50),
-                  Text("Мои данные", style: TextStyle(fontSize: 24, color: Colors.black, letterSpacing: 1)),
-                  SizedBox(height: 55),
-                  Text("Имя студента", style: TextStyle(fontSize: 20, color: Colors.black, letterSpacing: 1)),
+                  const SizedBox(height: 50),
+                  const Text("Мои данные", style: TextStyle(fontSize: 24, color: Colors.black, letterSpacing: 1)),
+                  const SizedBox(height: 55),
+                  const Text("Имя студента", style: TextStyle(fontSize: 20, color: Colors.black, letterSpacing: 1)),
                   Padding(
                     padding: const EdgeInsets.only(left: 30, right: 30, top: 20),
                     child: TextFormField(
@@ -77,13 +77,13 @@ class _AccountScreenState extends State<AccountScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25.0),
                         ),
-                        hintStyle: TextStyle(color: Colors.black),
-                        labelStyle: TextStyle(color: Colors.black),
+                        hintStyle: const TextStyle(color: Colors.black),
+                        labelStyle: const TextStyle(color: Colors.black),
                       ),
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   TextButton(
                     onPressed: () {

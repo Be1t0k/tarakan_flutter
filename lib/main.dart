@@ -7,7 +7,6 @@ import 'package:student_test_system/testList.dart';
 import 'package:student_test_system/userStatistic.dart';
 import 'account_screen.dart';
 import 'auth_page.dart';
-import 'creatingTest.dart';
 import 'firebase/firebase_options.dart';
 
 void main() async {
@@ -27,7 +26,7 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
   int index = 0;
-  bool isAdmin = false;
+  bool isAdmin = true;
   bool gotRole = false;
 
   var baseUrl = '192.168.0.109';
@@ -39,10 +38,8 @@ class _MainState extends State<Main> {
 
   final screens = [
     const UserStatistic(),
-    const CreatingTest(),
     const CreatingSubject(),
     const TestList(),
-    // const CreatingQuestion("")
   ];
 
   @override
@@ -53,7 +50,7 @@ class _MainState extends State<Main> {
     }
     if (FirebaseAuth.instance.currentUser != null) {
       return Scaffold(
-        extendBodyBehindAppBar: true,
+        extendBodyBehindAppBar: false,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -68,7 +65,7 @@ class _MainState extends State<Main> {
                         builder: (context) => const AccountScreen()),
                   );
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.person,
                   color: Colors.blue,
                 ),
@@ -83,22 +80,12 @@ class _MainState extends State<Main> {
           height: 55,
           selectedIndex: index,
           onDestinationSelected: (index) => setState(() => this.index = index),
-          destinations: [
-            const NavigationDestination(
+          destinations: const [
+            NavigationDestination(
                 icon: Icon(Icons.info_outline, color: Colors.white),
                 label: 'Statistic'),
-            Visibility(
-              child: NavigationDestination(
-                  icon: Icon(Icons.add, color: Colors.white),
-                  label: 'New test'),
-              visible: isAdmin,
-            ),
-            Visibility(
-              child: NavigationDestination(
-                  icon: Icon(Icons.add, color: Colors.white),
-                  label: 'New subject'),
-              visible: isAdmin,
-            ),
+            NavigationDestination(
+                icon: Icon(Icons.add, color: Colors.white), label: 'Subjects'),
             NavigationDestination(
                 icon: Icon(Icons.table_chart_sharp, color: Colors.white),
                 label: 'Tests'),
@@ -106,7 +93,7 @@ class _MainState extends State<Main> {
         ),
       );
     } else {
-      return AuthPage();
+      return const AuthPage();
     }
   }
 

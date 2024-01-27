@@ -4,6 +4,8 @@ import 'package:student_test_system/main.dart';
 import 'loginOrRegisterPage.dart';
 
 class AuthPage extends StatelessWidget {
+  const AuthPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,10 +13,10 @@ class AuthPage extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData){
-            return Main();
+            return const Main();
           }
           else {
-            return LoginOrRegisterPage();
+            return const LoginOrRegisterPage();
           }
         },
       ),

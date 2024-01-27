@@ -8,19 +8,19 @@ void main() {
 }
 
 class CreatingQuestion extends StatefulWidget {
-  const CreatingQuestion(this.test_name, {super.key});
+  const CreatingQuestion(this.testName, {super.key});
 
-  final String test_name;
+  final String testName;
 
   @override
-  State<CreatingQuestion> createState() => _CreatingQuestionState(test_name);
+  State<CreatingQuestion> createState() => _CreatingQuestionState(testName);
 }
 
 class _CreatingQuestionState extends State<CreatingQuestion> {
 
-  final String test_name;
+  final String testName;
 
-  _CreatingQuestionState(this.test_name);
+  _CreatingQuestionState(this.testName);
 
   @override
   void initState() {
@@ -29,6 +29,6 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }

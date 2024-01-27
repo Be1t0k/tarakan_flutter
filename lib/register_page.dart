@@ -25,16 +25,16 @@ class _RegisterPageState extends State<RegisterPage> {
           padding: const EdgeInsets.all(50.0),
           child: Column(
             children: [
-              SizedBox(height: 150),
-              Text("Sign up", style: TextStyle(fontSize: 30)),
-              SizedBox(height: 10),
+              const SizedBox(height: 150),
+              const Text("Sign up", style: TextStyle(fontSize: 30)),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: emailController,
                 decoration: const InputDecoration(
                   labelText: 'Enter email',
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: passwordController,
                 obscureText: true,
@@ -42,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   labelText: 'Enter password',
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: confirmPasswordController,
                 obscureText: true,
@@ -50,12 +50,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   labelText: 'Confirm password',
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () => {signUpUser()},
                 child: const Text("Registration"),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               GestureDetector(
                 onTap: widget.onTap,
                 child: const Text("Go to login"),
