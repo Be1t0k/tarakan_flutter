@@ -1,7 +1,4 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-
-import 'creatingQuestion.dart';
 
 void main() {
   runApp(const MaterialApp(home: CreatingSubject()));
