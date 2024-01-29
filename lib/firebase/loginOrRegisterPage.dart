@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:student_test_system/register_page.dart';
+import 'package:student_test_system/firebase/register_page.dart';
 
 import 'login_page.dart';
 
