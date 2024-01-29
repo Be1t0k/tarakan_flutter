@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:student_test_system/creatingTest.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -40,6 +41,17 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
               child: Text("Создание вопросов", textAlign: TextAlign.center)),
           backgroundColor: Colors.blue,
           elevation: 0,
+          actions: [
+          IconButton(
+            icon: const Icon(Icons.check),
+            tooltip: 'Open shopping cart',
+            onPressed: () {
+              setState(() {
+      Navigator.pop(context, MaterialPageRoute(builder: (context) => const CreatingTest()));
+    });
+            },
+          ),
+        ],
         ),
         body: ListView(children: [
           ListView.builder(
