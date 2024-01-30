@@ -47,7 +47,7 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
             tooltip: 'Open shopping cart',
             onPressed: () {
               setState(() {
-      Navigator.pop(context, MaterialPageRoute(builder: (context) => const CreatingTest()));
+      Navigator.pushNamed(context,'/createSubject');
     });
             },
           ),

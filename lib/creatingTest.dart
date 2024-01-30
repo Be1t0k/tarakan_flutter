@@ -3,18 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:student_test_system/creatingQuestion.dart';
 
 void main() {
-  runApp(const MaterialApp(home: CreatingTest()));
+  runApp(const MaterialApp(home: CreatingTest("Не пришел name_test с прошлой страницы (создания предмета)")));
 }
 
 class CreatingTest extends StatefulWidget {
-  const CreatingTest({super.key});
+  const CreatingTest(this.nameSub, {super.key});
+
+  final String nameSub;
 
   @override
-  State<CreatingTest> createState() => _CreatingTestState();
+  State<CreatingTest> createState() => _CreatingTestState(nameSub);
 }
 
 class _CreatingTestState extends State<CreatingTest> {
+  
   var testNameController = TextEditingController();
+  final String nameSub;
+  
+  _CreatingTestState(this.nameSub);
 
   @override
   void initState() {
@@ -32,6 +38,10 @@ class _CreatingTestState extends State<CreatingTest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        title: Text("Тесты дисциплины$nameSub"),
+      ),
       body: 
         ListView.builder(
             scrollDirection: Axis.vertical,
@@ -83,7 +93,7 @@ Future<void> _dialogBuilder(BuildContext context) {
               style: TextButton.styleFrom(
                 textStyle: Theme.of(context).textTheme.labelLarge,
               ),
-              child: const Text('Enable'),
+              child: const Text('Создать'),
               onPressed: () {
                 goPush();
               },
