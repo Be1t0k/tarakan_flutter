@@ -59,6 +59,7 @@ class _CreatingTestState extends State<CreatingTest> {
     return Card(
       child: ListTile(
         onTap: () {
+          Navigator.of(context).pop;
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const CreatingQuestion("123")));
         },
@@ -107,6 +108,7 @@ Future<void> _dialogBuilder(BuildContext context) {
 
 
   goPush() {
+    Navigator.pop(context);
     setState(() {
       Navigator.push(
               context,

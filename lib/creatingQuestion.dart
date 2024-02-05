@@ -47,7 +47,7 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
             tooltip: 'Open shopping cart',
             onPressed: () {
               setState(() {
-      Navigator.pushNamed(context,'/createSubject');
+      Navigator.popUntil(context, ModalRoute.withName("/"));
     });
             },
           ),
@@ -131,7 +131,7 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
                       itemCount: questions_answers[myindex],
                     ),
                     FloatingActionButton(
-                      heroTag: "addAnswer",
+                      heroTag: "addAnswer$myindex",
                         onPressed: () {
                           setState(() {
                             questions_answers.update(

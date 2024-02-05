@@ -24,10 +24,9 @@ void main() async {
         '/': (context) => const Main(),
         '/signup': (context) => const AuthPage(),
         '/account': (context) => const AccountScreen(),
-        '/createSubject': (context) => const CreatingSubject(),
-        '/home': (context) => const Main()
+        '/createSubject': (context) => const CreatingSubject()
       },
-      initialRoute: '/home',
+      initialRoute: '/'
     ),
   );
 }
@@ -89,8 +88,9 @@ class _MainState extends State<Main> {
   }
 
   Future<bool> getRole() async {
-    var response = await Dio().get(
-        "http://${baseUrl}:8080/lowUser/${FirebaseAuth.instance.currentUser?.email}");
+    var response;
+    // = await Dio().get(
+    //     "http://${baseUrl}:8080/lowUser/${FirebaseAuth.instance.currentUser?.email}");
     setState(() {
       if (response.toString() == "ADMIN") {
         isAdmin = true;
