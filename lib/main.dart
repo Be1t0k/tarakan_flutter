@@ -1,11 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:student_test_system/creatingSubject.dart';
-import 'package:student_test_system/creatingTest.dart';
-import 'package:student_test_system/firebase/login_page.dart';
-import 'package:student_test_system/firebase/register_page.dart';
 import 'package:student_test_system/testList.dart';
 import 'package:student_test_system/userStatistic.dart';
 import 'account_screen.dart';

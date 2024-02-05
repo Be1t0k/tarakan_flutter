@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:student_test_system/account_screen.dart';
 import 'package:student_test_system/creatingTest.dart';
-import 'package:student_test_system/main.dart';
-import 'package:student_test_system/testList.dart';
 
 void main() {
   runApp(const MaterialApp(home: CreatingSubject()));
@@ -19,9 +17,11 @@ class CreatingSubject extends StatefulWidget {
 
 class _CreatingSubjectState extends State<CreatingSubject> {
   final creatingSubjectController = TextEditingController();
+  final List<String> subjectObjects = ['first', 'second'];
   int value = 2;
-
   var role = true;
+
+  String baseUrl = "192.168.155.6";
 
   _addItem() {
     Navigator.pop(context);
@@ -31,7 +31,7 @@ class _CreatingSubjectState extends State<CreatingSubject> {
     Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const CreatingTest("asd"))).then((_) => setState(() {
+                  builder: (context) => CreatingTest(creatingSubjectController.text))).then((_) => setState(() {
                 creatingSubjectController.text = "";
               }));;
   }
@@ -49,7 +49,7 @@ Future<void> _dialogBuilder(BuildContext context) {
           onFieldSubmitted: (text) {
             setState(() {
               Dio()
-                  .post("http://192.168.1.15:8080/test", data: {'title': text});
+                  .post("http://$baseUrl:8080/test", data: {'title': text});
             });
           },
           decoration: const InputDecoration(
@@ -104,8 +104,8 @@ Future<void> _dialogBuilder(BuildContext context) {
         body: ListView.builder(
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
-            itemCount: value,
-            itemBuilder: (context, index) => _buildRow(index)),
+            itemCount: subjectObjects.length,
+            itemBuilder: (context, index) => _buildRow(index, subjectObjects[index])),
         floatingActionButton: Visibility(
           visible: true,
           child: FloatingActionButton(
@@ -121,16 +121,16 @@ Future<void> _dialogBuilder(BuildContext context) {
     });
   }
 
-  _buildRow(int index) {
+  _buildRow(int index, var nameSubject) {
     return Card(
       child: ListTile(
         onTap: () {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const CreatingTest("asd")));
+                  builder: (context) => CreatingTest(nameSubject)));
         },
-        title: const Text('title'),
+        title: Text(subjectObjects[index]),
         subtitle: Text('subtitle$index'),
       ),
     );
