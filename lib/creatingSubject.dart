@@ -17,47 +17,43 @@ class CreatingSubject extends StatefulWidget {
 
 class _CreatingSubjectState extends State<CreatingSubject> {
   final creatingSubjectController = TextEditingController();
-  final List<String> subjectObjects = ['first', 'second'];
+  final List<String> subjectObjects = [];
   int value = 2;
   var role = true;
 
-  String baseUrl = "192.168.155.6";
+  String baseUrl = "192.168.0.107";
 
   _addItem() {
     Navigator.pop(context);
     setState(() {
+      Dio().post("http://$baseUrl:8080/discipline",
+          data: {'title': creatingSubjectController.text});
       value = value + 1;
     });
     Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => CreatingTest(creatingSubjectController.text))).then((_) => setState(() {
-                creatingSubjectController.text = "";
-              }));;
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CreatingTest(creatingSubjectController.text)))
+        .then((_) => setState(() {
+              creatingSubjectController.text = "";
+            }));
+    ;
   }
 
-  
-Future<void> _dialogBuilder(BuildContext context) {
+  Future<void> _dialogBuilder(BuildContext context) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Basic dialog title'),
-          content: 
-  TextFormField(
-          controller: creatingSubjectController,
-          onFieldSubmitted: (text) {
-            setState(() {
-              Dio()
-                  .post("http://$baseUrl:8080/test", data: {'title': text});
-            });
-          },
-          decoration: const InputDecoration(
-            labelText: 'Название теста',
+          title: const Text('Создание дисциплины'),
+          content: TextFormField(
+            controller: creatingSubjectController,
+            decoration: const InputDecoration(
+              labelText: 'Название дисциплины',
+            ),
           ),
-        ),
           actions: <Widget>[
-            
             TextButton(
               style: TextButton.styleFrom(
                 textStyle: Theme.of(context).textTheme.labelLarge,
@@ -76,43 +72,45 @@ Future<void> _dialogBuilder(BuildContext context) {
   @override
   void initState() {
     super.initState();
+    getAllDisciplines();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue,
-          elevation: 0,
-          actions: [
-            IconButton(
-              onPressed: () {
-                signOutUser;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const AccountScreen()),
-                );
-              },
-              icon: const Icon(
-                Icons.person,
-                color: Colors.white,
-              ),
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {
+              signOutUser;
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AccountScreen()),
+              );
+            },
+            icon: const Icon(
+              Icons.person,
+              color: Colors.white,
             ),
-          ],
-        ),
-        body: ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: subjectObjects.length,
-            itemBuilder: (context, index) => _buildRow(index, subjectObjects[index])),
-        floatingActionButton: Visibility(
-          visible: true,
-          child: FloatingActionButton(
-            onPressed: () => _dialogBuilder(context),
-            child: const Icon(Icons.add),
           ),
-        ),);
+        ],
+      ),
+      body: ListView.builder(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          itemCount: subjectObjects.length,
+          itemBuilder: (context, index) =>
+              _buildRow(index, subjectObjects[index])),
+      floatingActionButton: Visibility(
+        visible: true,
+        child: FloatingActionButton(
+          onPressed: () => _dialogBuilder(context),
+          child: const Icon(Icons.add),
+        ),
+      ),
+    );
   }
 
   void signOutUser() {
@@ -134,6 +132,40 @@ Future<void> _dialogBuilder(BuildContext context) {
         subtitle: Text('subtitle$index'),
       ),
     );
+  }
+
+  void getAllDisciplines() async {
+    List jsonList;
+    var response;
+    try {
+      response = await Dio().get("http://$baseUrl:8080/discipline",
+          options: Options(
+              sendTimeout: const Duration(minutes: 1),
+              receiveTimeout: const Duration(minutes: 1),
+              receiveDataWhenStatusError: true));
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw Exception("Connection  Timeout Exception");
+      }
+      throw Exception(e.message);
+    }
+    setState(() {
+      jsonList = response.data as List;
+      print(jsonList);
+      jsonList.length;
+
+      jsonList.forEach((item) async {
+        print("----------------------------------------------------");
+        print("----------------------------------------------------");
+        print(jsonList[jsonList.indexOf(item)]['id']);
+        print(jsonList[jsonList.indexOf(item)]['title']);
+        // Обновление айдишника на новый
+        setState(() {
+          value++;
+          subjectObjects.add(jsonList[jsonList.indexOf(item)]['title']);
+        });
+      });
+    });
   }
 
   isVisible() {

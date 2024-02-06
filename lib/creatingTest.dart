@@ -19,12 +19,16 @@ class _CreatingTestState extends State<CreatingTest> {
   
   var testNameController = TextEditingController();
   final String nameSub;
+  final List<String> testObjects = [];
+
+  String baseUrl = "192.168.0.107";
   
   _CreatingTestState(this.nameSub);
 
   @override
   void initState() {
     super.initState();
+    getAllTests();
   }
 
   int value = 2;
@@ -40,30 +44,30 @@ class _CreatingTestState extends State<CreatingTest> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: Text("Тесты дисциплины$nameSub"),
+        title: Text("Тесты дисциплины $nameSub"),
       ),
       body: 
         ListView.builder(
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
-            itemCount: value,
-            itemBuilder: (context, index) => _buildRow(index)),
+            itemCount: testObjects.length,
+            itemBuilder: (context, index) => _buildRow(index, testObjects[index])),
       floatingActionButton: OutlinedButton(
           onPressed: () => _dialogBuilder(context),
-          child: const Text('Open Dialog'),
+          child: const Text('Добавить тест'),
         ),
     );
   }
 
-  _buildRow(int index) {
+  _buildRow(int index, var testName) {
     return Card(
       child: ListTile(
         onTap: () {
           Navigator.of(context).pop;
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const CreatingQuestion("123")));
+              MaterialPageRoute(builder: (context) => CreatingQuestion(testObjects[index])));
         },
-        title: const Text('title'),
+        title: Text(testObjects[index]),
         subtitle: Text('subtitle$index'),
       ),
     );
@@ -74,14 +78,14 @@ Future<void> _dialogBuilder(BuildContext context) {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Basic dialog title'),
+          title: const Text('Создание теста'),
           content: 
   TextFormField(
           controller: testNameController,
           onFieldSubmitted: (text) {
             setState(() {
               Dio()
-                  .post("http://192.168.1.15:8080/test", data: {'title': text});
+                  .post("http://$baseUrl:8080/test", data: {'title': text});
             });
           },
           decoration: const InputDecoration(
@@ -105,18 +109,53 @@ Future<void> _dialogBuilder(BuildContext context) {
     );
   }
 
-
-
   goPush() {
     Navigator.pop(context);
     setState(() {
+      Dio().post("http://$baseUrl:8080/test/$nameSub",
+          data: {'title': testNameController.text});
+      value = value + 1;
+    });
       Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const CreatingQuestion("123")))
+                  builder: (context) => CreatingQuestion(testNameController.text)))
           .then((_) => setState(() {
                 testNameController.text = "";
               }));
+  }
+
+  void getAllTests() async {
+    List jsonList;
+    var response;
+    try {
+      response = await Dio().get("http://$baseUrl:8080/test",
+          options: Options(
+              sendTimeout: const Duration(minutes: 1),
+              receiveTimeout: const Duration(minutes: 1),
+              receiveDataWhenStatusError: true));
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw Exception("Connection  Timeout Exception");
+      }
+      throw Exception(e.message);
+    }
+    setState(() {
+      jsonList = response.data as List;
+      print(jsonList);
+      jsonList.length;
+
+      jsonList.forEach((item) async {
+        print("----------------------------------------------------");
+        print("----------------------------------------------------");
+        print(jsonList[jsonList.indexOf(item)]['id']);
+        print(jsonList[jsonList.indexOf(item)]['title']);
+        // Обновление айдишника на новый
+        setState(() {
+          value++;
+          testObjects.add(jsonList[jsonList.indexOf(item)]['title']);
+        });
+      });
     });
   }
 }
