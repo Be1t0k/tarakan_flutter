@@ -24,12 +24,21 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
       <int, TextEditingController>{};
   Map<String, TextEditingController> answerControllers =
       <String, TextEditingController>{};
+  
+  final List<String> questionObjects = [];
+  
+  final List<String> answerObjects = [];
+      
+        var baseUrl = "192.168.0.109";
+        
+          var value;
 
   _CreatingQuestionState(this.testName);
 
   @override
   void initState() {
     super.initState();
+    getAllQuestions();
   }
 
   @override
@@ -43,7 +52,7 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
           actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            tooltip: 'Open shopping cart',
+            tooltip: 'Questions done',
             onPressed: () {
               setState(() {
       Navigator.popUntil(context, ModalRoute.withName("/"));
@@ -64,7 +73,7 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
                       controller: questionControllers[myindex],
                       onFieldSubmitted: (text) {
                         Dio().post(
-                            "http://192.168.1.15:8080/question/",
+                            "http://$baseUrl:8080/question/",
                             data: {'text': text});
                       },
                       decoration: InputDecoration(
@@ -165,5 +174,47 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
             backgroundColor: Colors.red,
             child: const Text('+ Вопрос', textScaleFactor: 0.7)),
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat);
+  }
+  
+  Future<void> getAllQuestions() async {
+
+    List jsonList;
+    var response;
+    try {
+      response = await Dio().get("http://$baseUrl:8080/question/$testName",
+          options: Options(
+              sendTimeout: const Duration(minutes: 1),
+              receiveTimeout: const Duration(minutes: 1),
+              receiveDataWhenStatusError: true));
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw Exception("Connection  Timeout Exception");
+      }
+      throw Exception(e.message);
+    }
+    setState(() {
+      jsonList = response.data as List;
+      print(jsonList);
+
+      jsonList.forEach((item) async {
+        print("----------------------------------------------------");
+        print("----------------------------------------------------");
+        print(jsonList[jsonList.indexOf(item)]['id']);
+        print(jsonList[jsonList.indexOf(item)]['text']);
+        print(jsonList[jsonList.indexOf(item)]['answers']);
+        // Обновление айдишника на новый
+        setState(() {
+          var answer_len = jsonList[jsonList.indexOf(item)]['answers'] as List;
+          questions_answers[questions_answers.length] = answer_len.length;
+                question_counter++;
+                questionControllers[questions_answers.length-1] =
+                    TextEditingController(text: jsonList[jsonList.indexOf(item)]['text'].toString());
+
+          //value++;
+          //questionObjects.add(jsonList[jsonList.indexOf(item)]['text']);
+        });
+      });
+    });
+
   }
 }

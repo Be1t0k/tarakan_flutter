@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:student_test_system/account_screen.dart';
+import 'package:student_test_system/passingTest.dart';
 
 void main() {
   runApp(const MaterialApp(home: TestList()));
@@ -14,9 +16,15 @@ class TestList extends StatefulWidget {
 }
 
 class _TestListState extends State<TestList> {
+
+  final List<String> testsObjects = [];
+  
+  var baseUrl = "192.168.0.109";
+
   @override
   void initState() {
     super.initState();
+    getMyDisciplines();
   }
 
   @override
@@ -44,16 +52,9 @@ class _TestListState extends State<TestList> {
       body: ListView.builder(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
-          itemCount: 2,
+          itemCount: testsObjects.length,
           itemBuilder: (context, index) =>
-              _buildRow(index, "subjectObjects[index]")),
-      floatingActionButton: Visibility(
-        visible: true,
-        child: FloatingActionButton(
-          onPressed: () => print(context),
-          child: const Icon(Icons.add),
-        ),
-      ),
+              _buildRow(index, testsObjects[index]))
     );
   }
 
@@ -67,11 +68,48 @@ class _TestListState extends State<TestList> {
     return Card(
       child: ListTile(
         onTap: () { 
-          print("123");
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const PassingTest("123")));
         },
-        title: Text("subjectObjects[index]"),
+        title: Text(testsObjects[index]),
         subtitle: Text('subtitle$index'),
       ),
     );
   }
+
+  void getMyDisciplines() async {
+    List jsonList;
+    var response;
+    try {
+      response = await Dio().get("http://$baseUrl:8080/discipline/pasha@gmail.com",
+          options: Options(
+              sendTimeout: const Duration(minutes: 1),
+              receiveTimeout: const Duration(minutes: 1),
+              receiveDataWhenStatusError: true));
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw Exception("Connection  Timeout Exception");
+      }
+      throw Exception(e.message);
+    }
+    setState(() {
+      jsonList = response.data as List;
+      print(jsonList);
+      jsonList.length;
+
+      jsonList.forEach((item) async {
+        print("----------------------------------------------------");
+        print("----------------------------------------------------");
+        print(jsonList[jsonList.indexOf(item)]['id']);
+        print(jsonList[jsonList.indexOf(item)]['title']);
+        // Обновление айдишника на новый
+        setState(() {
+          testsObjects.add(jsonList[jsonList.indexOf(item)]['title']);
+        });
+      });
+    });
+  }
+
 }
