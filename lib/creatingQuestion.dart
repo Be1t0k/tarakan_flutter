@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -22,16 +23,14 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
   Map<int, int> questions_answers = {};
   Map<int, TextEditingController> questionControllers =
       <int, TextEditingController>{};
-  Map<String, TextEditingController> answerControllers =
-      <String, TextEditingController>{};
-  
-  final List<String> questionObjects = [];
-  
-  final List<String> answerObjects = [];
-      
-        var baseUrl = "192.168.0.109";
-        
-          var value;
+  Map<int, TextEditingController> answerControllers =
+      <int, TextEditingController>{};
+
+  var baseUrl = "192.168.0.109";
+  var value;
+  var currentQuestion;
+  String answerText = '';
+  String questionText = '';
 
   _CreatingQuestionState(this.testName);
 
@@ -50,16 +49,16 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
           backgroundColor: Colors.blue,
           elevation: 0,
           actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            tooltip: 'Questions done',
-            onPressed: () {
-              setState(() {
-      Navigator.popUntil(context, ModalRoute.withName("/"));
-    });
-            },
-          ),
-        ],
+            IconButton(
+              icon: const Icon(Icons.check),
+              tooltip: 'Questions done',
+              onPressed: () {
+                setState(() {
+                  Navigator.popUntil(context, ModalRoute.withName("/"));
+                });
+              },
+            ),
+          ],
         ),
         body: ListView(children: [
           ListView.builder(
@@ -68,100 +67,101 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (BuildContext context, int myindex) {
               return Column(
-                  children: <Widget>[
-                    TextFormField(
-                      controller: questionControllers[myindex],
-                      onFieldSubmitted: (text) {
-                        Dio().post(
-                            "http://$baseUrl:8080/question/",
-                            data: {'text': text});
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Введите вопрос №${myindex + 1}',
-                      ),
+                children: <Widget>[
+                  TextFormField(
+                    controller: questionControllers[myindex],
+                    onFieldSubmitted: (text) {
+                      currentQuestion = text;
+                      Dio().post("http://$baseUrl:8080/question/${testName}",
+                          data: {'text': text});
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Введите вопрос №${myindex + 1}',
                     ),
-                    ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (BuildContext context, int index) {
-                        return Column(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(
-                                      color: Colors.white38, width: 18.0),
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(20.0)),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                        blurRadius: 5, color: Colors.black38)
-                                  ]),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: ListTile(
-                                          title: TextFormField(
-                                            onFieldSubmitted: (text) {
-                                            },
-                                            decoration: InputDecoration(
-                                                labelText:
-                                                    'Введите ответ №${index + 1}'),
-                                          ),
+                  ),
+                  ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (BuildContext context, int index) {
+                      return Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(
+                                    color: Colors.white38, width: 18.0),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(20.0)),
+                                boxShadow: const [
+                                  BoxShadow(
+                                      blurRadius: 5, color: Colors.black38)
+                                ]),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ListTile(
+                                        title: TextFormField(
+                                          onFieldSubmitted: (text) {},
+                                          decoration: InputDecoration(
+                                              labelText:
+                                                  'Введите ответ №${index + 1}'),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Expanded(
-                                        child: ListTile(
-                                          title: TextFormField(
-                                            onFieldSubmitted: (text) {
-                                            },
-                                            decoration: const InputDecoration(
-                                                labelText: 'Балл'),
-                                          ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Expanded(
+                                      child: ListTile(
+                                        title: TextFormField(
+                                          onFieldSubmitted: (text) {
+
+                                            Dio().post("http://$baseUrl:8080/answer/${currentQuestion}");
+                                          },
+                                          decoration: const InputDecoration(
+                                              labelText: 'Балл'),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
-                        );
-                      },
-                      itemCount: questions_answers[myindex],
-                    ),
-                    FloatingActionButton(
+                          ),
+                        ],
+                      );
+                    },
+                    itemCount: questions_answers[myindex],
+                  ),
+                  FloatingActionButton(
                       heroTag: "addAnswer$myindex",
-                        onPressed: () {
-                          setState(() {
-                            questions_answers.update(
-                              myindex,
-                              (value) => ++value,
-                              ifAbsent: () => 1,
-                            );
-                            print(questions_answers);
-                          });
-                        },
-                        backgroundColor: Colors.green,
-                        child: const Text('+ ответ',
-                            textAlign: TextAlign.center, textScaleFactor: 0.9)),
-                    const SizedBox(height: 25),
-                  ],
-                );
+                      onPressed: () {
+                        setState(() {
+                          questions_answers.update(
+                            myindex,
+                            (value) => ++value,
+                            ifAbsent: () => 1,
+                          );
+                          print(questions_answers);
+                        });
+                      },
+                      backgroundColor: Colors.green,
+                      child: const Text('+ ответ',
+                          textAlign: TextAlign.center, textScaleFactor: 0.9)),
+                  const SizedBox(height: 25),
+                ],
+              );
             },
             itemCount: question_counter,
           ),
         ]),
         floatingActionButton: FloatingActionButton(
-          heroTag: "addQuestion",
+            heroTag: "addQuestion",
             onPressed: () {
               setState(() {
                 questions_answers[questions_answers.length] = 2;
@@ -175,9 +175,8 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
             child: const Text('+ Вопрос', textScaleFactor: 0.7)),
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat);
   }
-  
-  Future<void> getAllQuestions() async {
 
+  Future<void> getAllQuestions() async {
     List jsonList;
     var response;
     try {
@@ -206,15 +205,12 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
         setState(() {
           var answer_len = jsonList[jsonList.indexOf(item)]['answers'] as List;
           questions_answers[questions_answers.length] = answer_len.length;
-                question_counter++;
-                questionControllers[questions_answers.length-1] =
-                    TextEditingController(text: jsonList[jsonList.indexOf(item)]['text'].toString());
-
-          //value++;
-          //questionObjects.add(jsonList[jsonList.indexOf(item)]['text']);
+          question_counter++;
+          questionControllers[questions_answers.length - 1] =
+              TextEditingController(
+                  text: jsonList[jsonList.indexOf(item)]['text'].toString());
         });
       });
     });
-
   }
 }

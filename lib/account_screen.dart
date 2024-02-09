@@ -87,7 +87,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
                   TextButton(
                     onPressed: () {
-                      sendInfo();
+                      //sendInfo();
                     },
                     child: const Text('Изменить имя', style: TextStyle(fontSize: 20, color: Colors.black, letterSpacing: 1)),
                   ),
@@ -100,9 +100,9 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   getData() async{
-    var response = await Dio().get("http://$baseUrl:8080/client/${FirebaseAuth.instance.currentUser?.email}");
+    //var response = await Dio().get("http://$baseUrl:8080/client/${FirebaseAuth.instance.currentUser?.email}");
     setState(() {
-      displayNameController.text = response.data["displayName"].toString();
+      //displayNameController.text = response.data["displayName"].toString();
       // if (response.data["role"].toString() == "ADMIN"){
       //   isAdmin = true;
       // } else {
@@ -111,9 +111,9 @@ class _AccountScreenState extends State<AccountScreen> {
     });
   }
 
-  sendInfo() {
-    var displayName = displayNameController.text;
-    Dio().put("http://$baseUrl:8080/client/change-name/$displayName/${FirebaseAuth.instance.currentUser?.email}");
-  }
+  // sendInfo() {
+  //   var displayName = displayNameController.text;
+  //   Dio().put("http://$baseUrl:8080/client/change-name/$displayName/${FirebaseAuth.instance.currentUser?.email}");
+  // }
 
 }

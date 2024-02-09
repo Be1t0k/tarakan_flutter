@@ -20,14 +20,18 @@ class _CreatingSubjectState extends State<CreatingSubject> {
   final List<String> subjectObjects = [];
   int value = 2;
   var role = true;
+  
+  var currentUser = FirebaseAuth.instance.currentUser;
 
   String baseUrl = "192.168.0.109";
 
-  _addItem() {
+  _addItem() async {
     Navigator.pop(context);
-    setState(() {
-      Dio().post("http://$baseUrl:8080/discipline",
+    
+      await Dio().post("http://$baseUrl:8080/discipline",
           data: {'title': creatingSubjectController.text});
+      subscribe();
+    setState(() {
       value = value + 1;
     });
     Navigator.push(
@@ -79,6 +83,8 @@ class _CreatingSubjectState extends State<CreatingSubject> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        title: const Text("Создание дисциплины"),
         backgroundColor: Colors.blue,
         elevation: 0,
         actions: [
@@ -138,7 +144,7 @@ class _CreatingSubjectState extends State<CreatingSubject> {
     List jsonList;
     var response;
     try {
-      response = await Dio().get("http://$baseUrl:8080/discipline",
+      response = await Dio().get("http://$baseUrl:8080/discipline/${currentUser?.email}",
           options: Options(
               sendTimeout: const Duration(minutes: 1),
               receiveTimeout: const Duration(minutes: 1),
@@ -158,7 +164,7 @@ class _CreatingSubjectState extends State<CreatingSubject> {
         print("----------------------------------------------------");
         print("----------------------------------------------------");
         print(jsonList[jsonList.indexOf(item)]['id']);
-        print(jsonList[jsonList.indexOf(item)]['title']);
+        print(jsonList[jsonList.indexOf(item)]['tests']);
         // Обновление айдишника на новый
         setState(() {
           value++;
@@ -174,5 +180,9 @@ class _CreatingSubjectState extends State<CreatingSubject> {
     } else {
       return false;
     }
+  }
+  
+  Future<void> subscribe() async {
+    await Dio().post("http://$baseUrl:8080/discipline/${creatingSubjectController.text}/${currentUser?.email}");
   }
 }

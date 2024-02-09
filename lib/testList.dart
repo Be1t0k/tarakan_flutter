@@ -16,9 +16,9 @@ class TestList extends StatefulWidget {
 }
 
 class _TestListState extends State<TestList> {
-
   final List<String> testsObjects = [];
-  
+  var currentUser = FirebaseAuth.instance.currentUser;
+
   var baseUrl = "192.168.0.109";
 
   @override
@@ -30,32 +30,34 @@ class _TestListState extends State<TestList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {
-              signOutUser;
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AccountScreen()),
-              );
-            },
-            icon: const Icon(
-              Icons.person,
-              color: Colors.white,
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text("Список доступных тестов"),
+          backgroundColor: Colors.blue,
+          elevation: 0,
+          actions: [
+            IconButton(
+              onPressed: () {
+                signOutUser;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AccountScreen()),
+                );
+              },
+              icon: const Icon(
+                Icons.person,
+                color: Colors.white,
+              ),
             ),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          itemCount: testsObjects.length,
-          itemBuilder: (context, index) =>
-              _buildRow(index, testsObjects[index]))
-    );
+          ],
+        ),
+        body: ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: testsObjects.length,
+            itemBuilder: (context, index) =>
+                _buildRow(index, testsObjects[index])));
   }
 
   void signOutUser() {
@@ -65,25 +67,34 @@ class _TestListState extends State<TestList> {
   }
 
   _buildRow(int index, var nameSubject) {
-    return Card(
-      child: ListTile(
-        onTap: () { 
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const PassingTest("123")));
-        },
-        title: Text(testsObjects[index]),
-        subtitle: Text('subtitle$index'),
-      ),
-    );
+    return Padding(padding: const EdgeInsets.all(10), child: 
+    Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Text('Название:', style: TextStyle(fontSize: 16)),
+        Text(testsObjects[index], style: const TextStyle(fontSize: 16)),
+        OutlinedButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        PassingTest(testsObjects[index].toString())));
+          },
+          // ПЕРЕХОД НА ПРОХОЖДЕНИЕ ТЕСТА
+          child: const Text('Пройти'),
+        ),
+      ],
+    ));
   }
 
   void getMyDisciplines() async {
     List jsonList;
     var response;
     try {
-      response = await Dio().get("http://$baseUrl:8080/discipline/pasha@gmail.com",
+      response = await Dio().get(
+          "http://$baseUrl:8080/discipline/${currentUser?.email}",
           options: Options(
               sendTimeout: const Duration(minutes: 1),
               receiveTimeout: const Duration(minutes: 1),
@@ -103,13 +114,17 @@ class _TestListState extends State<TestList> {
         print("----------------------------------------------------");
         print("----------------------------------------------------");
         print(jsonList[jsonList.indexOf(item)]['id']);
-        print(jsonList[jsonList.indexOf(item)]['title']);
+        print(jsonList[jsonList.indexOf(item)]['tests']);
+        var testList = jsonList[jsonList.indexOf(item)]['tests'] as List;
+        var subTitle = jsonList[jsonList.indexOf(item)]['title'];
+        testList.forEach((element) => setState(() {
+              testsObjects.add(testList[testList.indexOf(element)]['title']);
+            }));
         // Обновление айдишника на новый
         setState(() {
-          testsObjects.add(jsonList[jsonList.indexOf(item)]['title']);
+          //testObjects.add(jsonList[jsonList.indexOf(item)]['tests']);
         });
       });
     });
   }
-
 }
