@@ -2,8 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:student_test_system/creatingSubject.dart';
-import 'package:student_test_system/creatingTest.dart';
-import 'package:student_test_system/passingTest.dart';
 import 'package:student_test_system/testList.dart';
 import 'package:student_test_system/userStatistic.dart';
 import 'account_screen.dart';
@@ -58,7 +56,6 @@ class _MainState extends State<Main> {
   Widget build(BuildContext context) {
     if (!gotRole) {
       gotRole = true;
-      getRole();
     }
     if (FirebaseAuth.instance.currentUser != null) {
       return Scaffold(
@@ -83,22 +80,5 @@ class _MainState extends State<Main> {
     } else {
       return const AuthPage();
     }
-  }
-
-  Future<bool> getRole() async {
-    var response;
-    // = await Dio().get(
-    //     "http://${baseUrl}:8080/lowUser/${FirebaseAuth.instance.currentUser?.email}");
-    setState(() {
-      if (response.toString() == "ADMIN") {
-        isAdmin = true;
-      } else {
-        isAdmin = false;
-      }
-      print(response.toString());
-      print(isAdmin);
-    });
-
-    return isAdmin;
   }
 }

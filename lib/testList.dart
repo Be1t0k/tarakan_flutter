@@ -91,7 +91,7 @@ class _TestListState extends State<TestList> {
 
   void getMyDisciplines() async {
     List jsonList;
-    var response;
+    Response response;
     try {
       response = await Dio().get(
           "http://$baseUrl:8080/discipline/${currentUser?.email}",
@@ -111,10 +111,6 @@ class _TestListState extends State<TestList> {
       jsonList.length;
 
       jsonList.forEach((item) async {
-        print("----------------------------------------------------");
-        print("----------------------------------------------------");
-        print(jsonList[jsonList.indexOf(item)]['id']);
-        print(jsonList[jsonList.indexOf(item)]['tests']);
         var testList = jsonList[jsonList.indexOf(item)]['tests'] as List;
         var subTitle = jsonList[jsonList.indexOf(item)]['title'];
         testList.forEach((element) => setState(() {

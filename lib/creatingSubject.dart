@@ -34,6 +34,7 @@ class _CreatingSubjectState extends State<CreatingSubject> {
     setState(() {
       value = value + 1;
     });
+    // ignore: use_build_context_synchronously
     Navigator.push(
             context,
             MaterialPageRoute(
@@ -161,25 +162,12 @@ class _CreatingSubjectState extends State<CreatingSubject> {
       jsonList.length;
 
       jsonList.forEach((item) async {
-        print("----------------------------------------------------");
-        print("----------------------------------------------------");
-        print(jsonList[jsonList.indexOf(item)]['id']);
-        print(jsonList[jsonList.indexOf(item)]['tests']);
-        // Обновление айдишника на новый
         setState(() {
           value++;
           subjectObjects.add(jsonList[jsonList.indexOf(item)]['title']);
         });
       });
     });
-  }
-
-  isVisible() {
-    if (role == 'ADMIN') {
-      return true;
-    } else {
-      return false;
-    }
   }
   
   Future<void> subscribe() async {
