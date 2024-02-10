@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:student_test_system/account_screen.dart';
+import 'package:student_test_system/creatingQuestion.dart';
 
 class PassingTest extends StatefulWidget {
   const PassingTest(this.testId, {super.key});
@@ -21,6 +23,7 @@ class _PassingTestState extends State<PassingTest> {
   Map<String, int> answerScore = {};
   var baseUrl = "192.168.0.109";
   var currentUser = FirebaseAuth.instance.currentUser;
+  List<dynamic> jsonQuestions = [];
 
   @override
   void initState() {
@@ -28,94 +31,86 @@ class _PassingTestState extends State<PassingTest> {
     _getData();
   }
 
+  final List<dynamic> data1 = [
+    {
+      "id": 1,
+      "question": "1 вопрос mobile_test",
+      "answers": [
+        {"id": 1, "text": "ответ_1_1", "score": 10},
+        {"id": 2, "text": "ответ_1_2", "score": 20}
+      ]
+    },
+    {
+      "id": 2,
+      "question": "2 вопрос mobile_test",
+      "answers": [
+        {"id": 3, "text": "ответ_1", "score": 100},
+        {"id": 4, "text": "ответ_2", "score": 200}
+      ]
+    }
+  ];
+
+  void _getData() async {
+    List answerQuestion;
+    var questions = await Dio().get("http://$baseUrl:8080/question/$testId");
+    print(jsonQuestions);
+    setState(() {
+      jsonQuestions = questions.data as List;
+    });
+  }
+
+  void signOutUser() {
+    setState(() {
+      FirebaseAuth.instance.signOut();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Прохождение теста $testId"),
+        title: const Text("Статистика прохождения"),
+        backgroundColor: Colors.blue,
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {
+              signOutUser;
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AccountScreen()),
+              );
+            },
+            icon: const Icon(
+              Icons.person,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
-      body: const SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox()
-            // Text(questionList[questionsCount]['text'].toString(), style: const TextStyle(fontSize: 28), textAlign: TextAlign.center),
-            // Padding(
-            //   padding: const EdgeInsets.all(14.0),
-            //       child: ListView.builder(
-            //           scrollDirection: Axis.vertical,
-            //           shrinkWrap: true,
-            //           physics: const NeverScrollableScrollPhysics(),
-            //           itemBuilder: (BuildContext context, int index) {
-            //           return Padding(
-            //             padding: const EdgeInsets.all(8.0),
-            //             child: InkWell(
-            //               child: Container(
-            //                   padding: const EdgeInsets.all(15.0),
-            //                   decoration: BoxDecoration(
-            //                     border: Border.all(width: 1.0, color: Colors.grey),
-            //                     borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-            //                   ),
-            //                   child: Row(
-            //                     mainAxisAlignment: MainAxisAlignment.center,
-            //                     children: [
-            //                       Expanded(child: Text(questionList[questionsCount]['answers'][index]['text'].toString(), style: TextStyle(fontSize: 24), textAlign: TextAlign.center)),
-            //                     ],
-            //                   )),
-            //                 onTap: () =>{
-            //                   answerScore[questionList[questionsCount]['answers'][index]['criterion']['title']] =
-            //                   answerScore[questionList[questionsCount]['answers'][index]['criterion']['title']]! + questionList[questionsCount]['answers'][index]['criterionScore'] as int,
-            //                   setState(() {
-            //                     if (questionsCount < jsonQuestions.length - 1)
-            //                       questionsCount++;
-            //                     else {
-            //                       Navigator.pop(context,true);
-            //                       showDialog(
-            //                           context: context,
-            //                           builder: (context) {
-            //                             Future.delayed(const Duration(seconds: 2), () {
-            //                               Navigator.of(context).pop(true);
-            //                             });
-            //                             return const AlertDialog(
-            //                               title: Text('Тест пройден'),
-            //                             );
-            //                           }
-            //                       );
-            //                       Dio().post("http://$baseUrl:8080/characteristic/$testId?user_login=${currentUser?.email}", data: answerScore);
-            //                     }
-            //                   }),
-            //                 }
-            //             ),
-            //           );
-            //           },
-            //           itemCount: counterAnswers[questionsCount + 1],
-            //       ),
-            // )
-          ],
-        ),
+      body: ListView.builder(
+        itemCount: jsonQuestions.length,
+        itemBuilder: (context, index) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(jsonQuestions[index]["text"], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              Column(
+                children: List.generate(jsonQuestions[index]["answers"].length, (ind) {
+                  return ListTile(
+                    title: Text(jsonQuestions[index]["answers"][ind]["text"]),
+                    subtitle: Text("Score: ${jsonQuestions[index]["answers"][ind]["score"]}"),
+                  );
+                }),
+              ),
+            ],
+          );
+        },
       ),
     );
-  }
-
-  // var jsonQuestions = [];
-  // var questionList = [];
-  var answers = [];
-  Map<int, int> counterAnswers = {};
-
-  Future<void> _getData() async {
-    List jsonQuestions;
-    List answerQuestion;
-
-    var questions = await Dio().get("http://$baseUrl:8080/question/$testId");
-    jsonQuestions = questions.data as List;
-    jsonQuestions.forEach((index) {
-      print(jsonQuestions[jsonQuestions.indexOf(index)]['text']);
-      answerQuestion =
-          jsonQuestions[jsonQuestions.indexOf(index)]['answers'] as List;
-      answerQuestion.forEach((element) {
-        print("_-----=-------=--------");
-        print(answerQuestion[answerQuestion.indexOf(element)]['text']);
-      });
-    });
   }
 }
