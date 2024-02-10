@@ -14,11 +14,6 @@ class PassingTest extends StatefulWidget {
 class _PassingTestState extends State<PassingTest> {
   final String testId;
 
-  var _tileColor;
-
-  var _selectedIndex;
-  var _selectedInd;
-
   _PassingTestState(this.testId);
 
   var baseUrl = "192.168.0.109";
@@ -53,88 +48,9 @@ class _PassingTestState extends State<PassingTest> {
 
     selectedAnswers[question] = index;
     print("отправим ${answerTitle}");
-    Dio().post("http://$baseUrl:8080/answer/$currentUser/${answerTitle}");
+    //Dio().post("http://$baseUrl:8080/answer/$currentUser/${answerTitle}");
   });
 }
-
-  // void _changeColor(resScore, question, index, ind) {
-  //   setState(() {
-  //     selectedAnswers[question] = index;
-  //     _selectedIndex = index;
-  //     _selectedInd = ind;
-  //     if (resScore < 100)
-  //                       {
-  //                         setState(() {
-  //                           _tileColor = Colors.red;
-  //                         });
-  //                       }
-  //                     else{
-  //                       setState(() {
-  //                           _tileColor = Colors.green;
-  //                         });
-  //                     }
-  //   });
-  // }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       centerTitle: true,
-  //       title: Text("Прохождение теста $testId"),
-  //       backgroundColor: Colors.blue,
-  //       elevation: 0,
-  //       actions: [
-  //         IconButton(
-  //           onPressed: () {
-  //             signOutUser;
-  //             Navigator.push(
-  //               context,
-  //               MaterialPageRoute(builder: (context) => const AccountScreen()),
-  //             );
-  //           },
-  //           icon: const Icon(
-  //             Icons.person,
-  //             color: Colors.white,
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //     body: ListView.builder(
-  //       itemCount: jsonQuestions.length,
-  //       itemBuilder: (context, index) {
-  //         return Column(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: <Widget>[
-  //             Padding(
-  //               padding: const EdgeInsets.all(8.0),
-  //               child: Text(jsonQuestions[index]["text"],
-  //                   style: const TextStyle(
-  //                       fontSize: 18, fontWeight: FontWeight.bold)),
-  //             ),
-  //             Column(
-  //               children: List.generate(jsonQuestions[index]["answers"].length,
-  //                   (ind) {
-  //                 return ListTile(
-  //                   title: Text(jsonQuestions[index]["answers"][ind]["text"]),
-  //                   tileColor: (_selectedInd == ind && _selectedIndex == index) ? _tileColor : null,
-  //                   onTap: () => {
-  //                     print(jsonQuestions[index]["answers"][ind]["text"]),
-  //                     print(index),
-  //                     print(ind),
-  //                     _changeColor(jsonQuestions[index]["answers"][ind]["score"], index, ind)
-  //                     //Dio().post("http://$baseUrl:8080/answer/$currentUser/${jsonQuestions[index]["answers"][ind]["text"]}")
-  //                   },
-  //                   // subtitle: Text("Score: ${jsonQuestions[index]["answers"][ind]["score"]}"),
-  //                 );
-  //               }),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
