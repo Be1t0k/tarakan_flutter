@@ -77,9 +77,10 @@ class _CreatingTestState extends State<CreatingTest> {
                             labelStyle: TextStyle(fontSize: 14.0))),
                   ),
                   FloatingActionButton.extended(
-                    onPressed: () {
-                      Dio().post(
-                          "http://$baseUrl:8080/discipline/$nameSub/$addStudentController");
+                    onPressed: () async {
+                      await Dio().post(
+                          "http://$baseUrl:8080/discipline/$nameSub/${addStudentController.text}");
+                      addStudentController.clear();
                     },
                     label: const Text('Добавить'),
                   ),

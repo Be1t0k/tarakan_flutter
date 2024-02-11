@@ -71,7 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
       if (passwordController.text == confirmPasswordController.text) {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: emailController.text, password: passwordController.text);
-        Dio().post("http://$baseUrl:8080/client", data: {
+        await Dio().post("http://$baseUrl:8080/client", data: {
           'login': emailController.text
         });
       } else {
