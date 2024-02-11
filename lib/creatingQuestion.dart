@@ -31,6 +31,8 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
   var currentQuestion;
   String answerText = '';
   String questionText = '';
+  
+  String currentAnswer = '';
 
   _CreatingQuestionState(this.testName);
 
@@ -38,6 +40,45 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
   void initState() {
     super.initState();
     getAllQuestions();
+  }
+
+  
+  Future<void> getAllQuestions() async {
+    List jsonList;
+    var response;
+    try {
+      response = await Dio().get("http://$baseUrl:8080/question/$testName",
+          options: Options(
+              sendTimeout: const Duration(minutes: 1),
+              receiveTimeout: const Duration(minutes: 1),
+              receiveDataWhenStatusError: true));
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw Exception("Connection  Timeout Exception");
+      }
+      throw Exception(e.message);
+    }
+    setState(() {
+      jsonList = response.data as List;
+      print(jsonList);
+
+      jsonList.forEach((item) async {
+        // print("----------------------------------------------------");
+        // print("----------------------------------------------------");
+        // print(jsonList[jsonList.indexOf(item)]['id']);
+        // print(jsonList[jsonList.indexOf(item)]['text']);
+        // print(jsonList[jsonList.indexOf(item)]['answers']);
+        // Обновление айдишника на новый
+        setState(() {
+          var answer_len = jsonList[jsonList.indexOf(item)]['answers'] as List;
+          questions_answers[questions_answers.length] = answer_len.length;
+          question_counter++;
+          questionControllers[questions_answers.length - 1] =
+              TextEditingController(
+                  text: jsonList[jsonList.indexOf(item)]['text'].toString());
+        });
+      });
+    });
   }
 
   @override
@@ -104,7 +145,11 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
                                     Expanded(
                                       child: ListTile(
                                         title: TextFormField(
-                                          onFieldSubmitted: (text) {},
+                                          onFieldSubmitted: (text) {
+                                            setState(() {
+                                              currentAnswer = text;
+                                            });
+                                          },
                                           decoration: InputDecoration(
                                               labelText:
                                                   'Введите ответ №${index + 1}'),
@@ -120,8 +165,12 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
                                       child: ListTile(
                                         title: TextFormField(
                                           onFieldSubmitted: (text) {
-
-                                            Dio().post("http://$baseUrl:8080/answer/${currentQuestion}");
+                                            Dio().post(
+                                                "http://$baseUrl:8080/answer/${currentQuestion}",
+                                                data: {
+                                                  "text": currentAnswer,
+                                                  "score": text
+                                                });
                                           },
                                           decoration: const InputDecoration(
                                               labelText: 'Балл'),
@@ -174,43 +223,5 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
             backgroundColor: Colors.red,
             child: const Text('+ Вопрос', textScaleFactor: 0.7)),
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat);
-  }
-
-  Future<void> getAllQuestions() async {
-    List jsonList;
-    var response;
-    try {
-      response = await Dio().get("http://$baseUrl:8080/question/$testName",
-          options: Options(
-              sendTimeout: const Duration(minutes: 1),
-              receiveTimeout: const Duration(minutes: 1),
-              receiveDataWhenStatusError: true));
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout) {
-        throw Exception("Connection  Timeout Exception");
-      }
-      throw Exception(e.message);
-    }
-    setState(() {
-      jsonList = response.data as List;
-      print(jsonList);
-
-      jsonList.forEach((item) async {
-        print("----------------------------------------------------");
-        print("----------------------------------------------------");
-        print(jsonList[jsonList.indexOf(item)]['id']);
-        print(jsonList[jsonList.indexOf(item)]['text']);
-        print(jsonList[jsonList.indexOf(item)]['answers']);
-        // Обновление айдишника на новый
-        setState(() {
-          var answer_len = jsonList[jsonList.indexOf(item)]['answers'] as List;
-          questions_answers[questions_answers.length] = answer_len.length;
-          question_counter++;
-          questionControllers[questions_answers.length - 1] =
-              TextEditingController(
-                  text: jsonList[jsonList.indexOf(item)]['text'].toString());
-        });
-      });
-    });
   }
 }

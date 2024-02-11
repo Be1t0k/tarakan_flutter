@@ -98,7 +98,9 @@ class _TestListState extends State<TestList> {
                 onPressed: () async {
                   var passedResult = await Dio().get(
                       "http://$baseUrl:8080/test/passedOrNot/${testsObjects[index]}/${currentUser?.email}");
-                  if (true == true) {
+                      print(passedResult);
+                  bool isPassed = bool.parse(passedResult.data);
+                  if (isPassed == true) {
                     // ignore: use_build_context_synchronously
                     _dialogBuilder(context);
                   } else {
