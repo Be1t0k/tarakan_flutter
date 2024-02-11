@@ -96,10 +96,8 @@ class _TestListState extends State<TestList> {
                   backgroundColor: MaterialStatePropertyAll(Colors.blue),
                 ),
                 onPressed: () async {
-                  print(testsObjects[index]);
                   var passedResult = await Dio().get(
                       "http://$baseUrl:8080/test/passedOrNot/${testsObjects[index]}/${currentUser?.email}");
-                  print(passedResult);
                   if (true == true) {
                     // ignore: use_build_context_synchronously
                     _dialogBuilder(context);
@@ -110,7 +108,6 @@ class _TestListState extends State<TestList> {
                             builder: (context) =>
                                 PassingTest(testsObjects[index].toString())));
                   }
-                  ;
                 },
                 child: const Text(
                   'Пройти',

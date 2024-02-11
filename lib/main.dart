@@ -17,7 +17,7 @@ void main() async {
     MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
-        '/': (context) => const AuthPage(),
+        '/': (context) => const Main(),
         '/signup': (context) => const AuthPage(),
         '/account': (context) => const AccountScreen(),
         '/createSubject': (context) => const CreatingSubject()

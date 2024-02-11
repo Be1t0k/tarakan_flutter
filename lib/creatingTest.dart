@@ -36,6 +36,9 @@ class _CreatingTestState extends State<CreatingTest> {
 
   var addStudentController = TextEditingController();
 
+  bool light = true;
+  Map<String, bool> isOpen = {};
+
   _CreatingTestState(this.nameSub);
 
   @override
@@ -112,8 +115,26 @@ class _CreatingTestState extends State<CreatingTest> {
   }
 
   _buildRow(int index, var testName) {
+    bool isOpenTest = true;
+    isOpen.forEach((key, value) {
+      if (testObjects[index] == key) {
+        //print('запретим${testObjects[index]}');
+        isOpenTest = value;
+      }
+    });
+
     return Card(
       child: ListTile(
+        leading: Switch(
+          value: isOpenTest,
+          onChanged: (bool thisValue) {
+            setState(() {
+              isOpenTest = thisValue;
+              isOpen.update(testName, (value) => thisValue);
+            });
+            Dio().post("http://$baseUrl:8080/test/$testName/$thisValue");
+          },
+        ),
         onTap: () {
           Navigator.of(context).pop;
           Navigator.push(
@@ -195,16 +216,12 @@ class _CreatingTestState extends State<CreatingTest> {
     }
     setState(() {
       jsonList = response.data as List;
-      print(jsonList);
-      jsonList.length;
-
       jsonList.forEach((item) async {
-        print("----------------------------------------------------");
-        print("----------------------------------------------------");
-        print(jsonList[jsonList.indexOf(item)]['id']);
-        print(jsonList[jsonList.indexOf(item)]['tests']);
-        print("----------------------------========------------------------");
-        print(jsonList[jsonList.indexOf(item)]['clients']);
+        // print("----------------------------------------------------");
+        // print(jsonList[jsonList.indexOf(item)]['id']);
+        // print(jsonList[jsonList.indexOf(item)]['tests']);
+        // print("----------------------------========------------------------");
+        // print(jsonList[jsonList.indexOf(item)]['clients']);
         var testList = jsonList[jsonList.indexOf(item)]['tests'] as List;
         var subTitle = jsonList[jsonList.indexOf(item)]['title'];
         var studentList = jsonList[jsonList.indexOf(item)]['clients'] as List;
@@ -217,6 +234,9 @@ class _CreatingTestState extends State<CreatingTest> {
         testList.forEach((element) => setState(() {
               if (subTitle == nameSub) {
                 testObjects.add(testList[testList.indexOf(element)]['title']);
+                isOpen[testList[testList.indexOf(element)]['title']] =
+                    testList[testList.indexOf(element)]['visible'];
+                print(isOpen);
               }
             }));
       });

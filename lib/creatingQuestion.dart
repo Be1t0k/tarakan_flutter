@@ -161,7 +161,7 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
           ),
         ]),
         floatingActionButton: FloatingActionButton(
-            heroTag: "addQuestion",
+            heroTag: "Добавить вопрос",
             onPressed: () {
               setState(() {
                 questions_answers[questions_answers.length] = 2;
