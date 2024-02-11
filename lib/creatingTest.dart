@@ -44,14 +44,6 @@ class _CreatingTestState extends State<CreatingTest> {
     getAllTests();
   }
 
-  int value = 2;
-
-  _addItem() {
-    setState(() {
-      value = value + 1;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,15 +70,15 @@ class _CreatingTestState extends State<CreatingTest> {
                         controller: addStudentController,
                         obscureText: true,
                         decoration: const InputDecoration(
-                          labelText: 'Введите email',
-                          labelStyle: TextStyle(fontSize: 14.0)
-                        )),
+                            labelText: 'Введите email',
+                            labelStyle: TextStyle(fontSize: 14.0))),
                   ),
                   FloatingActionButton.extended(
                     onPressed: () {
-                      Dio().post("http://$baseUrl:8080/discipline/$nameSub/$addStudentController");
+                      Dio().post(
+                          "http://$baseUrl:8080/discipline/$nameSub/$addStudentController");
                     },
-                    label:  const Text('Добавить'),
+                    label: const Text('Добавить'),
                   ),
                 ],
               )),
@@ -136,8 +128,7 @@ class _CreatingTestState extends State<CreatingTest> {
   }
 
   _buildRowStudent(int index, var testName) {
-    return ListTile(
-        title: Text("Почта студента: ${studentObjects[index]}"));
+    return ListTile(title: Text("Почта студента: ${studentObjects[index]}"));
   }
 
   Future<void> _dialogBuilder(BuildContext context) {
@@ -149,9 +140,7 @@ class _CreatingTestState extends State<CreatingTest> {
           content: TextFormField(
             controller: testNameController,
             onFieldSubmitted: (text) {
-              setState(() {
-                Dio().post("http://$baseUrl:8080/test", data: {'title': text});
-              });
+              Dio().post("http://$baseUrl:8080/test", data: {'title': text});
             },
             decoration: const InputDecoration(
               labelText: 'Название теста',
@@ -164,7 +153,15 @@ class _CreatingTestState extends State<CreatingTest> {
               ),
               child: const Text('Создать'),
               onPressed: () {
-                goPush();
+                goPush(testNameController.text);
+                Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                CreatingQuestion(testNameController.text)))
+                    .then((_) => setState(() {
+                          testNameController.text = "";
+                        }));
               },
             ),
           ],
@@ -173,21 +170,11 @@ class _CreatingTestState extends State<CreatingTest> {
     );
   }
 
-  goPush() {
+  goPush(testName) async {
     Navigator.pop(context);
-    setState(() {
-      Dio().post("http://$baseUrl:8080/test/$nameSub",
-          data: {'title': testNameController.text});
-      value = value + 1;
-    });
-    Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    CreatingQuestion(testNameController.text)))
-        .then((_) => setState(() {
-              testNameController.text = "";
-            }));
+    await Dio().post("http://$baseUrl:8080/test/$nameSub",
+        data: {'title': testNameController.text});
+    await Dio().post("http://$baseUrl:8080/test/$testName/false");
   }
 
   void getAllTests() async {
@@ -232,11 +219,6 @@ class _CreatingTestState extends State<CreatingTest> {
                 testObjects.add(testList[testList.indexOf(element)]['title']);
               }
             }));
-        // Обновление айдишника на новый
-        setState(() {
-          value++;
-          //testObjects.add(jsonList[jsonList.indexOf(item)]['tests']);
-        });
       });
     });
   }

@@ -85,7 +85,7 @@ class _CreatingSubjectState extends State<CreatingSubject> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Создание дисциплины"),
+        title: const Text("Дисциплины"),
         backgroundColor: Colors.blue,
         elevation: 0,
         actions: [

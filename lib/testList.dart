@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +19,7 @@ class TestList extends StatefulWidget {
 
 class _TestListState extends State<TestList> {
   final List<String> testsObjects = [];
+  Map<String, bool> isOpen = {};
   var currentUser = FirebaseAuth.instance.currentUser;
 
   var baseUrl = "192.168.0.109";
@@ -67,26 +70,56 @@ class _TestListState extends State<TestList> {
   }
 
   _buildRow(int index, var nameSubject) {
-    return Padding(padding: const EdgeInsets.all(10), child: 
-    Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Text('Название:', style: TextStyle(fontSize: 16)),
-        Text(testsObjects[index], style: const TextStyle(fontSize: 16)),
-        OutlinedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        PassingTest(testsObjects[index].toString())));
-          },
-          // ПЕРЕХОД НА ПРОХОЖДЕНИЕ ТЕСТА
-          child: const Text('Пройти'),
-        ),
-      ],
-    ));
+    bool isOpenTest = false;
+    isOpen.forEach((key, value) {
+      if (testsObjects[index] == key) {
+        print('запретим${testsObjects[index]}');
+        isOpenTest = value;
+      }
+    });
+    return Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text('Название:', style: TextStyle(fontSize: 16)),
+            Text(testsObjects[index], style: const TextStyle(fontSize: 16)),
+            Visibility(
+              visible: isOpenTest,
+              replacement: OutlinedButton(
+                onPressed: () {},
+                child: const Text('Тест закрыт'),
+              ),
+              child: OutlinedButton(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                ),
+                onPressed: () async {
+                  print(testsObjects[index]);
+                  var passedResult = await Dio().get(
+                      "http://$baseUrl:8080/test/passedOrNot/${testsObjects[index]}/${currentUser?.email}");
+                  print(passedResult);
+                  if (true == true) {
+                    // ignore: use_build_context_synchronously
+                    _dialogBuilder(context);
+                  } else {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                PassingTest(testsObjects[index].toString())));
+                  }
+                  ;
+                },
+                child: const Text(
+                  'Пройти',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            )
+          ],
+        ));
   }
 
   void getMyDisciplines() async {
@@ -107,20 +140,40 @@ class _TestListState extends State<TestList> {
     }
     setState(() {
       jsonList = response.data as List;
-      print(jsonList);
-      jsonList.length;
-
+      //print(jsonList);
       jsonList.forEach((item) async {
         var testList = jsonList[jsonList.indexOf(item)]['tests'] as List;
-        var subTitle = jsonList[jsonList.indexOf(item)]['title'];
         testList.forEach((element) => setState(() {
               testsObjects.add(testList[testList.indexOf(element)]['title']);
+              //print(testList[testList.indexOf(element)]['visible']);
+              isOpen.addAll({
+                testList[testList.indexOf(element)]['title']:
+                    testList[testList.indexOf(element)]['visible']
+              });
             }));
-        // Обновление айдишника на новый
-        setState(() {
-          //testObjects.add(jsonList[jsonList.indexOf(item)]['tests']);
-        });
       });
     });
+  }
+
+  Future<void> _dialogBuilder(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Тест уже пройден!'),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Закрыть'),
+              onPressed: () {
+                Navigator.popUntil(context, ModalRoute.withName("/"));
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
