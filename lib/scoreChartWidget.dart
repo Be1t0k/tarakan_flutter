@@ -21,7 +21,9 @@ class ScoreChartWidget extends StatelessWidget {
       ),
     ];
 
-    return ListView(children: [
+    return ListView(
+      physics: NeverScrollableScrollPhysics(),
+      children: [
       Padding(
           padding: const EdgeInsets.all(10),
           child: SizedBox(

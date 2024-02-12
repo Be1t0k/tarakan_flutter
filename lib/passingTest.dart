@@ -21,7 +21,7 @@ class _PassingTestState extends State<PassingTest> {
   List<dynamic> jsonQuestions = [];
   Map<String, int> selectedAnswers = {};
   var lastAnswer;
-  
+
   int summScore = 0;
 
   @override
@@ -49,36 +49,31 @@ class _PassingTestState extends State<PassingTest> {
     });
   }
 
-  void _changeColor(String question, int index, String answerTitle) {
-  setState(() {
-    if (selectedAnswers.containsKey(question) && selectedAnswers[question] != index) {
-      return; // ответ уже выбран в текущем вопросе, менять цвет не разрешено
-    }
+  Future<void> _changeColor(
+      String question, int index, String answerTitle) async {
+    await Dio().post("http://$baseUrl:8080/answer/${currentUser?.email}/${answerTitle}");
+    setState(() {
+      if (selectedAnswers.containsKey(question) &&
+          selectedAnswers[question] != index) {
+        return; // ответ уже выбран в текущем вопросе, менять цвет не разрешено
+      }
+      selectedAnswers[question] = index;
+      if (lastAnswer == answerTitle) {
+        _dialogBuilder(context);
+      }
+    });
+  }
 
-    selectedAnswers[question] = index;
-    print("отправим ${answerTitle}");
-    if(lastAnswer == answerTitle) {
-      Dio().post("http://$baseUrl:8080/answer/$currentUser/${answerTitle}");
-      _dialogBuilder(context);
-    }
-    else {
-      Dio().post("http://$baseUrl:8080/answer/$currentUser/${answerTitle}");
-    }
-  });
-}
-
-Color setColor(int score) {
-  summScore += score;
+  Color setColor(int score) {
+    summScore += score;
     if (score > 20) {
-      return Colors.green;      
-    }
-    else {
+      return Colors.green;
+    } else {
       return Colors.red;
     }
   }
 
-
-Future<void> _dialogBuilder(BuildContext context) {
+  Future<void> _dialogBuilder(BuildContext context) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -92,7 +87,8 @@ Future<void> _dialogBuilder(BuildContext context) {
               ),
               child: const Text('Закрыть'),
               onPressed: () async {
-                await Dio().post("http://$baseUrl:8080/test/passed/$testId/${currentUser?.email}");
+                await Dio().post(
+                    "http://$baseUrl:8080/test/passed/$testId/${currentUser?.email}");
                 setState(() {
                   Navigator.popUntil(context, ModalRoute.withName("/"));
                 });
@@ -156,7 +152,8 @@ Future<void> _dialogBuilder(BuildContext context) {
                         : null,
                     title: Text(answer['text']),
                     onTap: () {
-                      _changeColor(question['text'], answerIndex, answer['text']);
+                      _changeColor(
+                          question['text'], answerIndex, answer['text']);
                     },
                   );
                 },
@@ -167,5 +164,4 @@ Future<void> _dialogBuilder(BuildContext context) {
       ),
     );
   }
-  
 }

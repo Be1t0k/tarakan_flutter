@@ -1,3 +1,4 @@
+import 'package:charts_flutter_new/flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +21,28 @@ class _UserStatisticState extends State<UserStatistic> {
 
   var baseUrl = "192.168.0.109";
 
-  var scoresData = [
+  List<Map<String, dynamic>> scoresData = [
     {
-      "id": 9,
-      "text": "1 answ 1 que",
-      "score": 0,
+      "id": 1,
+      "text": "ответ_1_1",
+      "score": 10,
+      "clients": [
+        {
+          "id": 1,
+          "email": "dima123@gmail.com",
+          "role": {"id": 1, "title": "STUDENT"}
+        },
+        {
+          "id": 1,
+          "email": "dima123@gmail.com",
+          "role": {"id": 1, "title": "STUDENT"}
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "text": "ответ_2",
+      "score": 200,
       "clients": [
         {
           "id": 1,
@@ -34,9 +52,9 @@ class _UserStatisticState extends State<UserStatistic> {
       ]
     },
     {
-      "id": 8,
-      "text": "2 answ 2 que",
-      "score": 20,
+      "id": 6,
+      "text": "ответ 2 второго вопроса",
+      "score": 10,
       "clients": [
         {
           "id": 1,
@@ -47,10 +65,51 @@ class _UserStatisticState extends State<UserStatistic> {
     }
   ];
 
+  final List<String> testObjects = [];
+
   @override
   void initState() {
     super.initState();
     getData();
+    getAllTests();
+  }
+
+  _buildRow(int index, var testName) {
+    return Card(
+      child: ListTile(
+        onTap: () {},
+        title: Text(testObjects[index]),
+        subtitle: Text('subtitle$index'),
+      ),
+    );
+  }
+
+  void getAllTests() async {
+    List jsonList;
+    var response;
+    try {
+      response = await Dio().get(
+          "http://$baseUrl:8080/discipline/${currentUser?.email}",
+          options: Options(
+              sendTimeout: const Duration(minutes: 1),
+              receiveTimeout: const Duration(minutes: 1),
+              receiveDataWhenStatusError: true));
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw Exception("Connection  Timeout Exception");
+      }
+      throw Exception(e.message);
+    }
+    setState(() {
+      jsonList = response.data as List;
+      jsonList.forEach((item) async {
+        var testList = jsonList[jsonList.indexOf(item)]['tests'] as List;
+        var subTitle = jsonList[jsonList.indexOf(item)]['title'];
+        testList.forEach((element) => setState(() {
+              testObjects.add(testList[testList.indexOf(element)]['title']);
+            }));
+      });
+    });
   }
 
   bool selected = false;
@@ -82,6 +141,12 @@ class _UserStatisticState extends State<UserStatistic> {
         ),
         body: ListView(
           children: [
+            ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: testObjects.length,
+                itemBuilder: (context, index) =>
+                    _buildRow(index, testObjects[index])),
             Center(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
