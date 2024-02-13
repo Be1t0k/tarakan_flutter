@@ -127,24 +127,29 @@ class _UserStatisticState extends State<UserStatistic> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: testObjects.length,
-                itemBuilder: (context, index) => 
-                FutureBuilder(
+                itemBuilder: (context, index) => FutureBuilder(
                     future: getScore(testObjects[index]),
-                    builder:
-                        (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                        if (snapshot.hasData) {
-                    return _buildRow(index, testObjects[index], snapshot.data);
-                  } else {
-                    return const CircularProgressIndicator(
-                      strokeWidth: 1.0,
-                    );
-                  }
-                    }
-                    )
-                    )
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                      if (snapshot.hasData) {
+                        return _buildRow(
+                            index, testObjects[index], snapshot.data);
+                      } else {
+                        return const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 1.0,
+                                ),
+                              ),
+                            ));
+                      }
+                    }))
           ],
-        )
-        );
+        ));
   }
 
   void signOutUser() {
@@ -152,20 +157,20 @@ class _UserStatisticState extends State<UserStatistic> {
       FirebaseAuth.instance.signOut();
     });
   }
-  
+
   Future<List<Map<String, dynamic>>> getScore(var testObject) async {
-  var resultList;
-    var scores = await Dio().get(
-        "http://$baseUrl:8080/answer/$testObject/${currentUser?.email}");
+    var resultList;
+    var scores = await Dio()
+        .get("http://$baseUrl:8080/answer/$testObject/${currentUser?.email}");
     var scores_data = scores.data;
     print(scores_data);
-      List<Map<String, dynamic>> mapList = [];
-      for (var item in scores_data) {
-        if (item is Map<String, dynamic>) {
-          mapList.add(item);
-        }
+    List<Map<String, dynamic>> mapList = [];
+    for (var item in scores_data) {
+      if (item is Map<String, dynamic>) {
+        mapList.add(item);
       }
-      resultList = mapList;
+    }
+    resultList = mapList;
     return resultList;
   }
 }

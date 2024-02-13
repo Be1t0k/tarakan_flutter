@@ -25,9 +25,8 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Future<void> signOut() async {
-    final navigator = Navigator.of(context);
     await FirebaseAuth.instance.signOut();
-    navigator.pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+    Navigator.popUntil(context, ModalRoute.withName("/"));
   }
 
   Future<String> getData() async {
@@ -59,7 +58,7 @@ class _AccountScreenState extends State<AccountScreen> {
           child: LayoutBuilder(builder: (context, constraint) {
         return Center(
             child: Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Column(
             children: [
               TextFormField(
