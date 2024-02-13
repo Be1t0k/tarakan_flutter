@@ -20,52 +20,53 @@ class _UserStatisticState extends State<UserStatistic> {
   var currentUser = FirebaseAuth.instance.currentUser;
 
   var baseUrl = "192.168.0.109";
-
-  List<Map<String, dynamic>> scoresData = [
-    {
-      "id": 1,
-      "text": "ответ_1_1",
-      "score": 10,
-      "clients": [
-        {
-          "id": 1,
-          "email": "dima123@gmail.com",
-          "role": {"id": 1, "title": "STUDENT"}
-        },
-        {
-          "id": 1,
-          "email": "dima123@gmail.com",
-          "role": {"id": 1, "title": "STUDENT"}
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "text": "ответ_2",
-      "score": 200,
-      "clients": [
-        {
-          "id": 1,
-          "email": "dima123@gmail.com",
-          "role": {"id": 1, "title": "STUDENT"}
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "text": "ответ 2 второго вопроса",
-      "score": 10,
-      "clients": [
-        {
-          "id": 1,
-          "email": "dima123@gmail.com",
-          "role": {"id": 1, "title": "STUDENT"}
-        }
-      ]
-    }
-  ];
-
+  List<bool> isSelected = [false, false, false, false, false];
   final List<String> testObjects = [];
+
+  var scoresData;
+  // = [
+    // {
+    //   "id": 1,
+    //   "text": "ответ_1_1",
+    //   "score": 10,
+    //   "clients": [
+    //     {
+    //       "id": 1,
+    //       "email": "dima123@gmail.com",
+    //       "role": {"id": 1, "title": "STUDENT"}
+    //     },
+    //     {
+    //       "id": 1,
+    //       "email": "dima123@gmail.com",
+    //       "role": {"id": 1, "title": "STUDENT"}
+    //     }
+    //   ]
+    // },
+    // {
+    //   "id": 4,
+    //   "text": "ответ_2",
+    //   "score": 200,
+    //   "clients": [
+    //     {
+    //       "id": 1,
+    //       "email": "dima123@gmail.com",
+    //       "role": {"id": 1, "title": "STUDENT"}
+    //     }
+    //   ]
+    // },
+    // {
+    //   "id": 6,
+    //   "text": "ответ 2 второго вопроса",
+    //   "score": 10,
+    //   "clients": [
+    //     {
+    //       "id": 1,
+    //       "email": "dima123@gmail.com",
+    //       "role": {"id": 1, "title": "STUDENT"}
+    //     }
+    //   ]
+    // }
+  //];
 
   @override
   void initState() {
@@ -75,12 +76,33 @@ class _UserStatisticState extends State<UserStatistic> {
   }
 
   _buildRow(int index, var testName) {
-    return Card(
-      child: ListTile(
-        onTap: () {},
-        title: Text(testObjects[index]),
-        subtitle: Text('subtitle$index'),
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      children: [
+        CheckboxListTile(
+        onChanged: (bool? value) async {
+          setState(() {
+                        isSelected[index] = value!;
+                      });
+          if (isSelected[index] == true) {
+            var scores = await Dio().get("http://$baseUrl:8080/answer/$testName/${currentUser?.email}");
+            scoresData = scores.data;
+          }
+        },
+        title: Text(testObjects[index]), 
+        value: isSelected[index],
       ),
+      AnimatedContainer(
+              width: 500,
+              height: isSelected[index] ? 300.0 : 0.0,
+              alignment:
+                  isSelected[index] ? Alignment.center : AlignmentDirectional.topCenter,
+              duration: const Duration(seconds: 1),
+              curve: Curves.fastOutSlowIn,
+              child: ScoreChartWidget(scoresData),
+            ),
+      ],
     );
   }
 
@@ -146,33 +168,7 @@ class _UserStatisticState extends State<UserStatistic> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: testObjects.length,
                 itemBuilder: (context, index) =>
-                    _buildRow(index, testObjects[index])),
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text("my_test_name"),
-                  Checkbox(
-                    checkColor: Colors.white,
-                    value: selected,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        selected = value!;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            AnimatedContainer(
-              width: 500,
-              height: selected ? 0.0 : 300.0,
-              alignment:
-                  selected ? Alignment.center : AlignmentDirectional.topCenter,
-              duration: const Duration(seconds: 1),
-              curve: Curves.fastOutSlowIn,
-              child: ScoreChartWidget(scoresData),
-            ),
+                    _buildRow(index, testObjects[index]))
           ],
         ));
   }
