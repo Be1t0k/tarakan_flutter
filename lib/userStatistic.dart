@@ -27,22 +27,12 @@ class _UserStatisticState extends State<UserStatistic> {
   var currentUser = FirebaseAuth.instance.currentUser;
 
   var baseUrl = "192.168.0.109";
-  List<String> testMocks = [
-    'control_test',
-    'mobile_hardware_test',
-    'mobile_test',
-    'programm_test',
-    'AI_test'
-  ];
   final List<String> testObjects = [];
   late List<bool> isSelected = List<bool>.filled(testObjects.length, false);
-
-  List<Map<String, dynamic>> scoresData = [];
 
   @override
   void initState() {
     super.initState();
-    getData();
     getAllTests();
   }
 
@@ -160,25 +150,6 @@ class _UserStatisticState extends State<UserStatistic> {
   void signOutUser() {
     setState(() {
       FirebaseAuth.instance.signOut();
-    });
-  }
-
-  Future<void> getData() async {
-    // testObjects.forEach((element) async {
-    var scores = await Dio().get(
-        "http://$baseUrl:8080/answer/${testMocks[1]}/${currentUser?.email}");
-    var scores_data = scores.data;
-    print(scores_data);
-    setState(() {
-      List<Map<String, dynamic>> mapList = [];
-      for (var item in scores_data) {
-        if (item is Map<String, dynamic>) {
-          mapList.add(item);
-        }
-      }
-      scoresData = mapList;
-      // });
-      print(scoresData.runtimeType);
     });
   }
   
