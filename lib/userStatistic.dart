@@ -27,10 +27,17 @@ class _UserStatisticState extends State<UserStatistic> {
   var currentUser = FirebaseAuth.instance.currentUser;
 
   var baseUrl = "192.168.0.109";
+  List<String> testMocks = [
+    'control_test',
+    'mobile_hardware_test',
+    'mobile_test',
+    'programm_test',
+    'AI_test'
+  ];
   final List<String> testObjects = [];
   late List<bool> isSelected = List<bool>.filled(testObjects.length, false);
 
-  var scoresData;
+  List<Map<String, dynamic>> scoresData = [];
 
   @override
   void initState() {
@@ -39,7 +46,7 @@ class _UserStatisticState extends State<UserStatistic> {
     getAllTests();
   }
 
-  _buildRow(int index, var testName) {
+  _buildRow(int index, var testName, var snapshotData) {
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -61,7 +68,7 @@ class _UserStatisticState extends State<UserStatistic> {
               : AlignmentDirectional.topCenter,
           duration: const Duration(seconds: 1),
           curve: Curves.fastOutSlowIn,
-          child: ScoreChartWidget(scoresData),
+          child: ScoreChartWidget(snapshotData),
         ),
       ],
     );
@@ -88,9 +95,11 @@ class _UserStatisticState extends State<UserStatistic> {
       jsonList.forEach((item) async {
         var testList = jsonList[jsonList.indexOf(item)]['tests'] as List;
         var subTitle = jsonList[jsonList.indexOf(item)]['title'];
-        testList.forEach((element) => setState(() {
-              testObjects.add(testList[testList.indexOf(element)]['title']);
-            }));
+        for (var element in testList) {
+          setState(() {
+            testObjects.add(testList[testList.indexOf(element)]['title']);
+          });
+        }
       });
     });
   }
@@ -128,10 +137,24 @@ class _UserStatisticState extends State<UserStatistic> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: testObjects.length,
-                itemBuilder: (context, index) =>
-                    _buildRow(index, testObjects[index]))
+                itemBuilder: (context, index) => 
+                FutureBuilder(
+                    future: getScore(testObjects[index]),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                        if (snapshot.hasData) {
+                    return _buildRow(index, testObjects[index], snapshot.data);
+                  } else {
+                    return const CircularProgressIndicator(
+                      strokeWidth: 1.0,
+                    );
+                  }
+                    }
+                    )
+                    )
           ],
-        ));
+        )
+        );
   }
 
   void signOutUser() {
@@ -141,8 +164,9 @@ class _UserStatisticState extends State<UserStatistic> {
   }
 
   Future<void> getData() async {
+    // testObjects.forEach((element) async {
     var scores = await Dio().get(
-        "http://$baseUrl:8080/answer/mobile_test/$currentUser");
+        "http://$baseUrl:8080/answer/${testMocks[1]}/${currentUser?.email}");
     var scores_data = scores.data;
     print(scores_data);
     setState(() {
@@ -153,7 +177,24 @@ class _UserStatisticState extends State<UserStatistic> {
         }
       }
       scoresData = mapList;
+      // });
+      print(scoresData.runtimeType);
     });
-    print(scoresData.runtimeType);
+  }
+  
+  Future<List<Map<String, dynamic>>> getScore(var testObject) async {
+  var resultList;
+    var scores = await Dio().get(
+        "http://$baseUrl:8080/answer/$testObject/${currentUser?.email}");
+    var scores_data = scores.data;
+    print(scores_data);
+      List<Map<String, dynamic>> mapList = [];
+      for (var item in scores_data) {
+        if (item is Map<String, dynamic>) {
+          mapList.add(item);
+        }
+      }
+      resultList = mapList;
+    return resultList;
   }
 }
