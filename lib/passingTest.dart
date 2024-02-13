@@ -36,7 +36,6 @@ class _PassingTestState extends State<PassingTest> {
     if (allAnswers.isNotEmpty) {
       lastAnswer = allAnswers.last["text"];
     }
-    print("Последний $lastAnswer");
     var questions = await Dio().get("http://$baseUrl:8080/question/$testId");
     setState(() {
       jsonQuestions = questions.data as List;

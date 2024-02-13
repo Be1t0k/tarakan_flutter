@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class ScoreChartWidget extends StatelessWidget {
   final List<Map<String, dynamic>> scores;
 
-  ScoreChartWidget(this.scores);
+  const ScoreChartWidget(this.scores, {super.key});
 
   @override
   Widget build(BuildContext context) {

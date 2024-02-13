@@ -1,11 +1,18 @@
 import 'package:charts_flutter_new/flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:student_test_system/account_screen.dart';
 import 'package:student_test_system/scoreChartWidget.dart';
 
-void main() {
+import 'firebase/firebase_options.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MaterialApp(home: UserStatistic()));
 }
 
@@ -20,53 +27,10 @@ class _UserStatisticState extends State<UserStatistic> {
   var currentUser = FirebaseAuth.instance.currentUser;
 
   var baseUrl = "192.168.0.109";
-  List<bool> isSelected = [false, false, false, false, false];
   final List<String> testObjects = [];
+  late List<bool> isSelected = List<bool>.filled(testObjects.length, false);
 
   var scoresData;
-  // = [
-    // {
-    //   "id": 1,
-    //   "text": "ответ_1_1",
-    //   "score": 10,
-    //   "clients": [
-    //     {
-    //       "id": 1,
-    //       "email": "dima123@gmail.com",
-    //       "role": {"id": 1, "title": "STUDENT"}
-    //     },
-    //     {
-    //       "id": 1,
-    //       "email": "dima123@gmail.com",
-    //       "role": {"id": 1, "title": "STUDENT"}
-    //     }
-    //   ]
-    // },
-    // {
-    //   "id": 4,
-    //   "text": "ответ_2",
-    //   "score": 200,
-    //   "clients": [
-    //     {
-    //       "id": 1,
-    //       "email": "dima123@gmail.com",
-    //       "role": {"id": 1, "title": "STUDENT"}
-    //     }
-    //   ]
-    // },
-    // {
-    //   "id": 6,
-    //   "text": "ответ 2 второго вопроса",
-    //   "score": 10,
-    //   "clients": [
-    //     {
-    //       "id": 1,
-    //       "email": "dima123@gmail.com",
-    //       "role": {"id": 1, "title": "STUDENT"}
-    //     }
-    //   ]
-    // }
-  //];
 
   @override
   void initState() {
@@ -81,27 +45,24 @@ class _UserStatisticState extends State<UserStatistic> {
       shrinkWrap: true,
       children: [
         CheckboxListTile(
-        onChanged: (bool? value) async {
-          setState(() {
-                        isSelected[index] = value!;
-                      });
-          if (isSelected[index] == true) {
-            var scores = await Dio().get("http://$baseUrl:8080/answer/$testName/${currentUser?.email}");
-            scoresData = scores.data;
-          }
-        },
-        title: Text(testObjects[index]), 
-        value: isSelected[index],
-      ),
-      AnimatedContainer(
-              width: 500,
-              height: isSelected[index] ? 300.0 : 0.0,
-              alignment:
-                  isSelected[index] ? Alignment.center : AlignmentDirectional.topCenter,
-              duration: const Duration(seconds: 1),
-              curve: Curves.fastOutSlowIn,
-              child: ScoreChartWidget(scoresData),
-            ),
+          onChanged: (bool? value) async {
+            setState(() {
+              isSelected[index] = value!;
+            });
+          },
+          title: Text(testObjects[index]),
+          value: isSelected[index],
+        ),
+        AnimatedContainer(
+          width: 500,
+          height: isSelected[index] ? 300.0 : 0.0,
+          alignment: isSelected[index]
+              ? Alignment.center
+              : AlignmentDirectional.topCenter,
+          duration: const Duration(seconds: 1),
+          curve: Curves.fastOutSlowIn,
+          child: ScoreChartWidget(scoresData),
+        ),
       ],
     );
   }
@@ -181,7 +142,18 @@ class _UserStatisticState extends State<UserStatistic> {
 
   Future<void> getData() async {
     var scores = await Dio().get(
-        "http://$baseUrl:8080/answer/mobile_hardware_test/dima123@gmail.com");
-    //scoresData = scores as List<Map<String, Object>>;
+        "http://$baseUrl:8080/answer/mobile_test/$currentUser");
+    var scores_data = scores.data;
+    print(scores_data);
+    setState(() {
+      List<Map<String, dynamic>> mapList = [];
+      for (var item in scores_data) {
+        if (item is Map<String, dynamic>) {
+          mapList.add(item);
+        }
+      }
+      scoresData = mapList;
+    });
+    print(scoresData.runtimeType);
   }
 }

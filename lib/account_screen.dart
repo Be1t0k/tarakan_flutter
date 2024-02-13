@@ -15,9 +15,9 @@ Future<void> updateDisplayedName(user, name) async {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  final user = FirebaseAuth.instance.currentUser;
+  final currentUser = FirebaseAuth.instance.currentUser;
   String baseUrl = '192.168.0.109';
-  var userRole;
+  var userRole = 'aboba';
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
   Future<String> getData() async {
     var response = await Dio().get(
-        "http://$baseUrl:8080/client/role/${FirebaseAuth.instance.currentUser?.email}");
+        "http://$baseUrl:8080/client/role/${currentUser?.email}");
     if (mounted) {
     setState(() {
       userRole = response.data;
