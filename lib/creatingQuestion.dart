@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -63,12 +62,6 @@ class _CreatingQuestionState extends State<CreatingQuestion> {
       print(jsonList);
 
       jsonList.forEach((item) async {
-        // print("----------------------------------------------------");
-        // print("----------------------------------------------------");
-        // print(jsonList[jsonList.indexOf(item)]['id']);
-        // print(jsonList[jsonList.indexOf(item)]['text']);
-        // print(jsonList[jsonList.indexOf(item)]['answers']);
-        // Обновление айдишника на новый
         setState(() {
           var answer_len = jsonList[jsonList.indexOf(item)]['answers'] as List;
           questions_answers[questions_answers.length] = answer_len.length;

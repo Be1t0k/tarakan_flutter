@@ -101,7 +101,6 @@ class _TestListState extends State<TestList> {
                       print(passedResult);
                   bool isPassed = bool.parse(passedResult.data);
                   if (isPassed == true) {
-                    // ignore: use_build_context_synchronously
                     _dialogBuilder(context);
                   } else {
                     Navigator.push(

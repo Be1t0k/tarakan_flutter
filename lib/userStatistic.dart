@@ -1,4 +1,3 @@
-import 'package:charts_flutter_new/flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -84,7 +83,6 @@ class _UserStatisticState extends State<UserStatistic> {
       jsonList = response.data as List;
       jsonList.forEach((item) async {
         var testList = jsonList[jsonList.indexOf(item)]['tests'] as List;
-        var subTitle = jsonList[jsonList.indexOf(item)]['title'];
         for (var element in testList) {
           setState(() {
             testObjects.add(testList[testList.indexOf(element)]['title']);
